@@ -1,28 +1,30 @@
-import { Router } from 'express'
-import middlewareLibros from '../middleware/validarLibros.js'
+import express from 'express';
 import con from '../config/database.js';
 import dotenv from 'dotenv';
 import { verifyJWT } from '../jwt/jwt.js';
 
-const appLibros = Router()
+dotenv.config();
 
-appLibros.post('/', middlewareLibros, (req, res) => res.send(JSON.stringify(req.body)))
+const appPrestamosRealizados = express.Router();
+appPrestamosRealizados.use(express.json());
 
 /**
- *  ! Metodo GET 
+ *  ! Metodo GET Listar los préstamos realizados con fecha de préstamo, fecha de devolución y estado.
  */
-appLibros.get('/', async (req, res) => {
+appPrestamosRealizados.get('/', async (req, res) => {
     const { authorization } = req.headers;
     try {
-        // Verificar si existe un token JWT en los encabezados
         if (!authorization) {
             return res.status(401).json({ error: "Token de autenticación no proporcionado" });
         }
-        // Verificar el token JWT utilizando la clave secreta
         const jwtData = await verifyJWT(authorization);
         con.query(
             /* sql */`
-            SELECT * FROM libro;`,
+            SELECT prestamo.fecha_prestamo, prestamo.fecha_devolucion, prestamo.estado, 
+            libro.titulo AS titulo_libro, usuario.nombre AS nombre_usuario, usuario.apellido AS apellido_usuario
+            FROM prestamo
+            INNER JOIN libro ON prestamo.id_libro = libro.id_libro
+            INNER JOIN usuario ON prestamo.id_usuario = usuario.id_usuario;;`,
             (err, data, fields) => {
                 if (err) {
                     console.error(err);
@@ -37,4 +39,4 @@ appLibros.get('/', async (req, res) => {
     }
 });
 
-export default appLibros;
+export default appPrestamosRealizados;

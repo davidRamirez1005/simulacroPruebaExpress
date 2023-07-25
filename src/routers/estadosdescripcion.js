@@ -1,28 +1,26 @@
-import { Router } from 'express'
-import middlewareLibros from '../middleware/validarLibros.js'
+import express from 'express';
 import con from '../config/database.js';
 import dotenv from 'dotenv';
 import { verifyJWT } from '../jwt/jwt.js';
 
-const appLibros = Router()
+dotenv.config();
 
-appLibros.post('/', middlewareLibros, (req, res) => res.send(JSON.stringify(req.body)))
+const appEstadosDesc = express.Router();
+appEstadosDesc.use(express.json());
 
 /**
- *  ! Metodo GET 
+ *  ! Metodo GET Obtener los estados de los libros y sus descripciones
  */
-appLibros.get('/', async (req, res) => {
+appEstadosDesc.get('/', async (req, res) => {
     const { authorization } = req.headers;
     try {
-        // Verificar si existe un token JWT en los encabezados
         if (!authorization) {
             return res.status(401).json({ error: "Token de autenticación no proporcionado" });
         }
-        // Verificar el token JWT utilizando la clave secreta
         const jwtData = await verifyJWT(authorization);
         con.query(
             /* sql */`
-            SELECT * FROM libro;`,
+            SELECT estado_libro.nombre,estado_libro.descripcion FROM estado_libro;`,
             (err, data, fields) => {
                 if (err) {
                     console.error(err);
@@ -37,4 +35,4 @@ appLibros.get('/', async (req, res) => {
     }
 });
 
-export default appLibros;
+export default appEstadosDesc;

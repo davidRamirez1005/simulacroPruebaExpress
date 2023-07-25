@@ -1,28 +1,29 @@
-import { Router } from 'express'
-import middlewareLibros from '../middleware/validarLibros.js'
+import express from 'express';
 import con from '../config/database.js';
 import dotenv from 'dotenv';
 import { verifyJWT } from '../jwt/jwt.js';
 
-const appLibros = Router()
+dotenv.config();
 
-appLibros.post('/', middlewareLibros, (req, res) => res.send(JSON.stringify(req.body)))
+const apptituloAutorEditorial = express.Router();
+apptituloAutorEditorial.use(express.json());
 
 /**
- *  ! Metodo GET 
+ *  ! Metodo GET Mostrar todos los libros con su título, autor y editorial.
  */
-appLibros.get('/', async (req, res) => {
+apptituloAutorEditorial.get('/', async (req, res) => {
     const { authorization } = req.headers;
     try {
-        // Verificar si existe un token JWT en los encabezados
         if (!authorization) {
             return res.status(401).json({ error: "Token de autenticación no proporcionado" });
         }
-        // Verificar el token JWT utilizando la clave secreta
         const jwtData = await verifyJWT(authorization);
         con.query(
             /* sql */`
-            SELECT * FROM libro;`,
+            SELECT libro.titulo, autor.nombre AS nombre_autor, autor.apellido AS apellido_autor, editorial.nombre AS nombre_editorial
+            FROM libro
+            INNER JOIN autor ON libro.id_autor = autor.id_autor
+            INNER JOIN editorial ON libro.id_editorial = editorial.id_editorial;`,
             (err, data, fields) => {
                 if (err) {
                     console.error(err);
@@ -37,4 +38,4 @@ appLibros.get('/', async (req, res) => {
     }
 });
 
-export default appLibros;
+export default apptituloAutorEditorial;

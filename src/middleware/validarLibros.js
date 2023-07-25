@@ -1,17 +1,18 @@
-import { Libros } from "../../controller/validacionDto.js";
+import { Libros } from '../../controller/validacionDto.js';
 import "reflect-metadata";
 import express from 'express';
 import { plainToClass } from "class-transformer";
 
 const middlewareLibros = express();
-middlewareLibros.use(async(req, res, next) => {
+middlewareLibros.use((req, res, next) => {
 try {
-    let data = plainToClass(User, req.body, { excludeExtraneousValues: true });
-    req.body = data;
-    await validate(data);
-    next();
-} catch (err) {
-res.status(err.status).json(err);
+let data = plainToClass(Libros, req.body, {
+    excludeExtraneousValues: true,
+});
+req.body = JSON.parse(JSON.stringify(data));
+next();
+} catch (error) {
+res.status(error.status).send(error);
 }
 });
 

@@ -27,20 +27,25 @@ export class Libros {
     @IsNumber({}, {message: () =>{throw {status: 406, message: 'el formato no es un numero id_categoria'}}})
     id_categoria: number;
 
+    @Expose({ name: 'id_editorial' })
+    @IsNumber({}, {message: ()=>{throw {status:406, message:"El formato del parametro id_editorial no es correcto"}}})
+    @IsDefined({message: ()=>{ throw {status:422, message: "El parametro id_editorial es obligatorio"}}})
+    id_editorial: number;
+    
     @Expose({ name: 'titulo' })
+    @Transform(({ value }) => { if(/^[a-z A-Z]+$/.test(value)) return (value) ? value : "Libro" ; else throw {status: 406, message: "El formato del parametro titulo no es correcto"};}, { toClassOnly: true })
     titulo: string;
 
     @Expose({ name: 'anio_publicacion' })
-    @IsNumber({}, {message: () =>{throw {status: 406, message: 'el formato no es un numero anio_publicacion'}}})
+    @Transform(({ value }) => { if(/^[0-9]|undefined+$/.test(value)) return (value) ? value : 2023 ; else throw {status: 406, message: "El formato del parametro anio_publicacion no es correcto"};}, { toClassOnly: true })
     anio_publicacion: number;
 
     @Expose({ name: 'isbn' })
-    @IsDefined({message: () =>{ throw {status: 422, message: 'el parametro es obligatorio isbn'}} })
-    @IsString({message: () =>{throw {status: 406, message: 'el formato no es un numero isbn'}}})
+    @Transform(({ value }) => { if(/^[0-9\\-]|undefined+$/.test(value)) return value ; else throw {status: 400, message: "El parametro codigo-biblioteca-isbn es obligatorio y no cumple con el formato solicitado"};}, { toClassOnly: true })
     isbn: string;
 
     @Expose({ name: 'num_paginas' })
-    @IsNumber({}, {message: () =>{throw {status: 406, message: 'el formato no es un numero num_paginas'}}})
+    @Transform(({ value }) => { if(/^[0-9]|undefined+$/.test(value)) return (value) ? value : 0 ; else throw {status: 406, message: "El formato del parametro numero-paginas no es correcto"};}, { toClassOnly: true })
     num_paginas: number;
 
     @Expose({ name: 'id_estado' })
@@ -51,7 +56,8 @@ export class Libros {
     constructor(
       id_libro: number,
       id_autor: number, 
-      id_categoria: number, 
+      id_categoria: number,
+      id_editorial : number,
       titulo: string = 'libro',
       anio_publicacion: number = 1,
       isbn: string,
@@ -60,6 +66,7 @@ export class Libros {
       this.id_libro = id_libro;
       this.id_autor = id_autor;
       this.id_categoria = id_categoria;
+      this.id_editorial = id_editorial;
       this.titulo = titulo;
       this.anio_publicacion = anio_publicacion;
       this.isbn = isbn;

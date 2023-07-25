@@ -9,7 +9,7 @@ const jwtConstructor = new SignJWT({ json: data });
 const jwt = await jwtConstructor
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setIssuedAt()
-    .setExpirationTime('1h')
+    .setExpirationTime('2h')
     .sign(encoder.encode(process.env.JWT_PRIVATE_KEY));
 return jwt;
 };

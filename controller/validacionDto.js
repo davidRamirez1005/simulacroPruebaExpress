@@ -7,8 +7,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Expose } from 'class-transformer';
-import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { Expose, Transform } from 'class-transformer';
+import { IsDefined, IsNumber } from 'class-validator';
 /*
 `id_libro` int(11) NOT NULL,
 `id_autor` int(11) DEFAULT NULL,
@@ -21,10 +21,11 @@ import { IsDefined, IsNumber, IsString } from 'class-validator';
 `id_estado` int(11) DEFAULT NULL
 */
 export class Libros {
-    constructor(id_libro, id_autor, id_categoria, titulo = 'libro', anio_publicacion = 1, isbn, num_paginas, id_estado) {
+    constructor(id_libro, id_autor, id_categoria, id_editorial, titulo = 'libro', anio_publicacion = 1, isbn, num_paginas, id_estado) {
         this.id_libro = id_libro;
         this.id_autor = id_autor;
         this.id_categoria = id_categoria;
+        this.id_editorial = id_editorial;
         this.titulo = titulo;
         this.anio_publicacion = anio_publicacion;
         this.isbn = isbn;
@@ -51,23 +52,41 @@ __decorate([
     __metadata("design:type", Number)
 ], Libros.prototype, "id_categoria", void 0);
 __decorate([
+    Expose({ name: 'id_editorial' }),
+    IsNumber({}, { message: () => { throw { status: 406, message: "El formato del parametro id_editorial no es correcto" }; } }),
+    IsDefined({ message: () => { throw { status: 422, message: "El parametro id_editorial es obligatorio" }; } }),
+    __metadata("design:type", Number)
+], Libros.prototype, "id_editorial", void 0);
+__decorate([
     Expose({ name: 'titulo' }),
+    Transform(({ value }) => { if (/^[a-z A-Z]+$/.test(value))
+        return (value) ? value : "Libro";
+    else
+        throw { status: 406, message: "El formato del parametro titulo no es correcto" }; }, { toClassOnly: true }),
     __metadata("design:type", String)
 ], Libros.prototype, "titulo", void 0);
 __decorate([
     Expose({ name: 'anio_publicacion' }),
-    IsNumber({}, { message: () => { throw { status: 406, message: 'el formato no es un numero anio_publicacion' }; } }),
+    Transform(({ value }) => { if (/^[0-9]|undefined+$/.test(value))
+        return (value) ? value : 2023;
+    else
+        throw { status: 406, message: "El formato del parametro anio_publicacion no es correcto" }; }, { toClassOnly: true }),
     __metadata("design:type", Number)
 ], Libros.prototype, "anio_publicacion", void 0);
 __decorate([
     Expose({ name: 'isbn' }),
-    IsDefined({ message: () => { throw { status: 422, message: 'el parametro es obligatorio isbn' }; } }),
-    IsString({ message: () => { throw { status: 406, message: 'el formato no es un numero isbn' }; } }),
+    Transform(({ value }) => { if (/^[0-9\\-]|undefined+$/.test(value))
+        return value;
+    else
+        throw { status: 400, message: "El parametro codigo-biblioteca-isbn es obligatorio y no cumple con el formato solicitado" }; }, { toClassOnly: true }),
     __metadata("design:type", String)
 ], Libros.prototype, "isbn", void 0);
 __decorate([
     Expose({ name: 'num_paginas' }),
-    IsNumber({}, { message: () => { throw { status: 406, message: 'el formato no es un numero num_paginas' }; } }),
+    Transform(({ value }) => { if (/^[0-9]|undefined+$/.test(value))
+        return (value) ? value : 0;
+    else
+        throw { status: 406, message: "El formato del parametro numero-paginas no es correcto" }; }, { toClassOnly: true }),
     __metadata("design:type", Number)
 ], Libros.prototype, "num_paginas", void 0);
 __decorate([
