@@ -9,9 +9,9 @@ const jwtConstructor = new SignJWT({ json: data });
 const jwt = await jwtConstructor
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setIssuedAt()
-    .setExpirationTime('2h')
+    .setExpirationTime('30m')
     .sign(encoder.encode(process.env.JWT_PRIVATE_KEY));
-return jwt;
+return (jwt);
 };
 
 const verifyJWT = async (token) => {
@@ -20,7 +20,7 @@ try {
     const jwtData = await jwtVerify(token, encoder.encode(process.env.JWT_PRIVATE_KEY));
     return jwtData;
 } catch (error) {
-    throw new Error("Invalid JWT token");
+    throw new Error("token invalido");
 }
 };
 

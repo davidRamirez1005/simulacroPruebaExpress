@@ -5,16 +5,16 @@ import authenticateJWT from '../jwt/autenticate.js';
 
 dotenv.config();
 
-const appEditorales = express.Router();
-appEditorales.use(express.json());
+const appReserva = express.Router();
+appReserva.use(express.json());
 
 /**
- *  ! Metodo GET  Mostrar todas las editoriales y sus direcciones.
+ *  ! Metodo GET Obtener todas las reservas realizadas con su fecha de reserva y estado.
  */
-appEditorales.get('/',authenticateJWT, async (req, res) => {
+appReserva.get('/',authenticateJWT, async (req, res) => {
     con.query(
         /* sql */`
-        SELECT editorial.nombre,editorial.direccion  from editorial;`,
+        SELECT reserva.fecha_reserva,reserva.estado from reserva;`,
         (err, data, fields) => {
             if (err) {
                 console.error(err);
@@ -26,4 +26,4 @@ appEditorales.get('/',authenticateJWT, async (req, res) => {
     );
 });
 
-export default appEditorales;
+export default appReserva;

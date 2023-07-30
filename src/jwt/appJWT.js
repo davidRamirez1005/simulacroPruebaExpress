@@ -4,6 +4,9 @@ import { createJWT, verifyJWT } from './jwt.js';
 const appJwt = express.Router();
 appJwt.use(express.json());
 
+/**
+ * * solicitar token
+ */
 appJwt.post('/', async (req, res) => {
     const { id, nombre } = req.body;
     const json = { id, nombre };
@@ -11,10 +14,12 @@ appJwt.post('/', async (req, res) => {
         const jwt = await createJWT(json);
         res.send({ jwt });
     } catch (error) {
-        res.status(500).send({ error: "Error al crear el token JWT" });
+        res.status(500).send({ error: "Error al crear el JWT" });
     }
     });
-
+    /**
+     * ? ver el token actual
+     */
     appJwt.get("/:ver", async (req, res) => {
     const { authorization } = req.headers;
     if (!authorization) return res.status(401).send({ token: ":(" });

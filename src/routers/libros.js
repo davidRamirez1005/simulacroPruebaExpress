@@ -1,40 +1,31 @@
-import { Router } from 'express'
-import middlewareLibros from '../middleware/validarLibros.js'
+import express from 'express';
 import con from '../config/database.js';
 import dotenv from 'dotenv';
-import { verifyJWT } from '../jwt/jwt.js';
+import authenticateJWT from '../jwt/autenticate.js';
 
-const appLibros = Router()
+dotenv.config();
 
-appLibros.post('/', middlewareLibros, (req, res) => res.send(JSON.stringify(req.body)))
+const appLibros = express.Router();
+appLibros.use(express.json());
 
 /**
- *  ! Metodo GET 
+ *  ! Metodo GET Mostrar todos los libros con su título, autor y editorial
  */
-appLibros.get('/', async (req, res) => {
-    const { authorization } = req.headers;
-    try {
-        // Verificar si existe un token JWT en los encabezados
-        if (!authorization) {
-            return res.status(401).json({ error: "Token de autenticación no proporcionado" });
-        }
-        // Verificar el token JWT utilizando la clave secreta
-        const jwtData = await verifyJWT(authorization);
-        con.query(
-            /* sql */`
-            SELECT * FROM libro;`,
-            (err, data, fields) => {
-                if (err) {
-                    console.error(err);
-                    res.status(500).send("Error al obtener los datos");
-                } else {
-                    res.send(data);
-                }
+appLibros.get('/',authenticateJWT, async (req, res) => {
+    con.query(
+        /* sql */`
+        SELECT libro.titulo,autor.nombre as nombre_autor,editorial.nombre as nombre_editorial from libro
+        INNER JOIN autor ON libro.id_autor = autor.id_autor
+        INNER JOIN editorial ON libro.id_libro = editorial.id_editorial;`,
+        (err, data, fields) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send("Error al obtener los datos de duenio_Mascota");
+            } else {
+                res.send(data);
             }
-        );
-    } catch (error) {
-        res.status(401).json({ error: "Token de autenticación inválido o ha expirado" });
-    }
+        }
+    );
 });
 
 export default appLibros;
